@@ -3,16 +3,26 @@ package com.goulart.leandro_LiterAlura.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "livros")
+@Table(name= "livros")
 public class Livro {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String titulo;
-    private String autor;
-    private String descricao;
-    private String urlCapa;
+
+    @Column(unique = true)
+    private String nome;
+    private String idioma;
+    private Integer quantidadeDeDownloads;
+
+    @ManyToOne
+    private Autor autor;
+
+    public Livro(){}
+    public Livro(DadosLivro dados) {
+        this.nome = dados.nomeDoLivro();
+        this.idioma = String.join(",",dados.idiomas());
+        this.quantidadeDeDownloads = dados.quantidadeDeDownloads();
+    }
 
     public Long getId() {
         return id;
@@ -22,35 +32,45 @@ public class Livro {
         this.id = id;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public String getNome() {
+        return nome;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public String getAutor() {
+    public String getIdioma() {
+        return idioma;
+    }
+
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
+    }
+
+    public Integer getQuantidadeDeDownloads() {
+        return quantidadeDeDownloads;
+    }
+
+    public void setQuantidadeDeDownloads(Integer quantidadeDeDownloads) {
+        this.quantidadeDeDownloads = quantidadeDeDownloads;
+    }
+
+    public Autor getAutor() {
         return autor;
     }
 
-    public void setAutor(String autor) {
+    public void setAutor(Autor autor) {
         this.autor = autor;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getUrlCapa() {
-        return urlCapa;
-    }
-
-    public void setUrlCapa(String urlCapa) {
-        this.urlCapa = urlCapa;
+    @Override
+    public String toString() {
+        return "\n---------------------------------------"+
+                "\nNome: " + nome +
+                "\nIdioma: " + idioma +
+                "\nAutor: " + autor.getNome() +
+                "\nQuantidade De Downloads: " + quantidadeDeDownloads;
     }
 }
