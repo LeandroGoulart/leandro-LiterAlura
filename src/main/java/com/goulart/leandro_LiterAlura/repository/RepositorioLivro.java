@@ -1,19 +1,21 @@
 package com.goulart.leandro_LiterAlura.repository;
 
-import com.goulart.leandro_LiterAlura.model.DadosAutor;
-import com.goulart.leandro_LiterAlura.model.Livro;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.awt.print.Book;
 import java.util.List;
-import java.util.Optional;
 
-public interface LivroRepository extends JpaRepository<Livro, Long> {
+public interface RepositorioLivro extends JpaRepository<Livro,Long> {
 
-    Optional<Livro> findByTituloContainingIgnoreCase(String nomeLivro);
+    boolean existsByNome(String nome);
 
-    List<DadosAutor> findByAutoresNomeContainingIgnoreCase(String nomeAutor);
+    @Query("SELECT DISTINCT l.idioma FROM Livro l ORDER BY l.idioma")
+    List<String> bucasidiomas();
 
+    @Query("SELECT l FROM Livro l WHERE idioma = :idiomaSelecionado")
+    List<Livro> buscarPorIdioma(String idiomaSelecionado);
 
-
-
+    Book findByNome(String nome);
 }
