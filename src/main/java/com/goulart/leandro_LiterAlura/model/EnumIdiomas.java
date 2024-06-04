@@ -1,22 +1,24 @@
 package com.goulart.leandro_LiterAlura.model;
 
 public enum EnumIdiomas {
-    Ingles("en"),
+    Ingles   ("en"),
     Portugues("pt"),
-    Espanhol("es");
+    Espanhol ("es");
 
-    private String idiomaGutendex;
+    private String idiomaLivro;
 
-    EnumIdiomas(String idiomaGutendex) {
-        this.idiomaGutendex = idiomaGutendex;
+    EnumIdiomas(String idiomaLivro) {
+        this.idiomaLivro = idiomaLivro;
     }
 
-    public static EnumIdiomas fromString (String idioma) {
-        for (EnumIdiomas enumIdiomas : EnumIdiomas.values()) {
-            if (enumIdiomas.idiomaGutendex.equalsIgnoreCase(idioma)) {
-                return enumIdiomas;
+    public static EnumIdiomas fromString (String idiomas) {
+        for (EnumIdiomas idioma : EnumIdiomas.values()) {
+            if (idiomas.equals(idioma.idiomaLivro)) {
+                return idioma;
             }
         }
-        throw new IllegalArgumentException("Nenhum idioma se encaixa aqui!");
+        throw new IllegalArgumentException("Não foi encontrado: " + idiomas);
     }
+
+
 }
