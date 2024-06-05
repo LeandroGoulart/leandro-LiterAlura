@@ -16,6 +16,7 @@ Bem-vindo ao LiterAlura! Este é um projeto desenvolvido como conclusão de etap
 
 
 - **Backend:** Implementado com Java, Spring Boot, e Postgres.
+- **API** disponibilizada pelo site https://gutendex.com/
 
 Obs.: Para consultas na API foi utilizado o Apache postman.
 
