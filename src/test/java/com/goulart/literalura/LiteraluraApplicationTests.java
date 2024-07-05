@@ -1,10 +1,10 @@
-package com.goulart.leandro_LiterAlura;
+package com.goulart.literalura;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class LeandroLiterAluraApplicationTests {
+class LiteraluraApplicationTests {
 
 	@Test
 	void contextLoads() {
