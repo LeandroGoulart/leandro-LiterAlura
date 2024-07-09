@@ -2,7 +2,6 @@ package com.goulart.literalura.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goulart.literalura.dto.DetalhesLivro;
 import org.springframework.stereotype.Service;
 
 @Service

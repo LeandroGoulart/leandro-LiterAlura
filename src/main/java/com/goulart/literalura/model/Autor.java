@@ -19,7 +19,7 @@ public class Autor {
 
     @Override
     public String toString() {
-        return   "\n" + "Nome: " + nome + " " + "( " +
+        return   nome + " " + "( " +
                 "Ano de nascimento: " + anoNascimento + " " +
                 "Ano de morte: " + anoMorte + ")" + "\n";
     }
