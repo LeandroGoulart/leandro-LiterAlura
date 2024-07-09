@@ -16,11 +16,20 @@ public class Livro {
     private String titulo;
 
     @JsonAlias("authors")
-    private List<Autor> autores;
+    private List<Autor> autor;
 
     @JsonAlias("languages")
     private List<String> idiomas;
 
     @JsonAlias("download_count")
-    private Integer contagemDownloads;
+    private Integer numeroDownloads;
+
+    @Override
+    public String toString() {
+        return  "Id=" + id + "\n" +
+                "Titulo=" + titulo + "\n" +
+                "Autor=" + autor.get(0) + "\n" +
+                "Idiomas=" + idiomas + "\n" +
+                "Número de downloads: =" + numeroDownloads + "\n";
+    }
 }
