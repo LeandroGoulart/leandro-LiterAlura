@@ -1,31 +1,44 @@
 package com.goulart.literalura.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.goulart.literalura.dto.DadosAutor;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Entity
+@Table(name = "livros")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Livro {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonAlias("id")
     private Integer id;
 
+    @Column(name = "titulo")
     @JsonAlias("title")
     private String titulo;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "autor_id")
     @JsonAlias("authors")
     private Autor autor;
 
+    @ElementCollection
+    @CollectionTable(name = "livro_idiomas", joinColumns = @JoinColumn(name = "livro_id"))
+    @Column(name = "idioma")
     @JsonAlias("languages")
-    private List<String> idiomas;
+    private List<Idioma> idiomas;
 
+    @Column(name = "numero_downloads")
     @JsonAlias("download_count")
     private Integer numeroDownloads;
 
-    public Livro(Integer id, String titulo, Autor autor, List<String> idiomas, Integer numeroDownloads) {
+    public Livro(Integer id, String titulo, Autor autor,  List<Idioma> idiomas, Integer numeroDownloads) {
         this.id = id;
         this.titulo = titulo;
         this.autor = autor;
@@ -33,15 +46,15 @@ public class Livro {
         this.numeroDownloads = numeroDownloads;
     }
 
-
-
     @Override
     public String toString() {
-        String autorStr = autor == null ? "N/A" : autor.toString();
-        return  "\nId= " + id + "\n" +
-                "Titulo= " + titulo + "\n" +
-                "Autor= " + autor +
-                "Idiomas= " + idiomas + "\n" +
-                "Número de downloads: " + numeroDownloads + "\n";
+        String idiomasStr = idiomas.stream()
+                .map(Idioma::getNomeAmigavel)
+                .collect(Collectors.joining(", "));
+        return "\nId= " + id +
+                "\nTitulo= " + titulo +
+                "\nAutor= " + (autor != null ? autor.getNome() + " ( Nascimento: " + autor.getAnoNascimento() + ", Morte: " + autor.getAnoMorte() + " )" : "N/A") +
+                "\nIdiomas= " + idiomasStr +
+                "\nNumero de Downloads= " + numeroDownloads;
     }
 }

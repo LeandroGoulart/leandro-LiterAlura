@@ -4,6 +4,7 @@ import com.goulart.literalura.dto.DadosAutor;
 import com.goulart.literalura.dto.DetalhesLivro;
 import com.goulart.literalura.dto.ResultadoApi;
 import com.goulart.literalura.model.Autor;
+import com.goulart.literalura.model.Idioma;
 import com.goulart.literalura.model.Livro;
 import com.goulart.literalura.service.ConsumoApi;
 import com.goulart.literalura.service.ConverteDados;
@@ -109,7 +110,6 @@ public class Principal {
         }
 
         private static List<Livro> exibeLivro(String url) {
-                System.out.println("URL: " + url);
                 try {
                         var json = consumoApi.obterDados(url);
                         System.out.println("Resultado encontrado: ");
@@ -133,11 +133,16 @@ public class Principal {
                         autor.setAnoNascimento(primeiroDadosAutor.anoNascimento());
                         autor.setAnoMorte(primeiroDadosAutor.anoMorte());
                 }
+                // Converte a lista de códigos de idiomas (String) para uma lista de Idioma
+                List<Idioma> idiomasConvertidos = detalhe.idiomas().stream()
+                        .flatMap(codigo -> Idioma.deStringSeparadaPorVirgulas(String.join(",", codigo)).stream())
+                        .collect(Collectors.toList());
+
                 return new Livro(
                         detalhe.id(),
                         detalhe.titulo(),
                         autor,
-                        detalhe.idiomas(),
+                        idiomasConvertidos,
                         detalhe.numeroDownloads()
                 );
         }
@@ -145,7 +150,7 @@ public class Principal {
         private static void retornoSaida() {
                 leitor.nextLine();
                 System.out.println("\nPressione qualquer tecla para voltar ao menu ou 0 para sair.");
-                String entrada = leitor.nextLine(); // Lê a próxima linha de entrada
+                String entrada = leitor.nextLine();
                 if ("0".equals(entrada.trim())) {
                         System.exit(0); // Encerra o programa
                 } else {
