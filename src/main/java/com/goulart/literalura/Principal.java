@@ -1,7 +1,5 @@
 package com.goulart.literalura;
 
-import com.goulart.literalura.dto.DadosAutor;
-import com.goulart.literalura.dto.DetalhesLivro;
 import com.goulart.literalura.dto.ResultadoApi;
 import com.goulart.literalura.model.Autor;
 import com.goulart.literalura.model.Idioma;
@@ -11,6 +9,8 @@ import com.goulart.literalura.repository.LivroRepository;
 import com.goulart.literalura.service.ConsumoApi;
 import com.goulart.literalura.service.ConverteDados;
 import com.goulart.literalura.service.ConverteLivro;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,7 +54,7 @@ public class Principal {
                 Digite uma opção válida:
                 """);
 
-                int opcao = 0;
+                int opcao = -1;
                 do {
                         opcao = leitor.nextInt();
                         switch (opcao) {
@@ -63,16 +63,39 @@ public class Principal {
                                 case 3 -> buscaPorPeriodo();
                                 case 4 -> buscaEntreAnos();
                                 case 5 -> buscaPorIdioma();
+                                case 6 -> buscaRanking();                                
                         }
                 } while (opcao != 0);
+        }
+
+
+        private void buscaRanking() {
+                try {
+                        System.out.println("Buscando os 10 livros mais baixados...");
+                        Pageable topTen = PageRequest.of(0, 10);
+                        List<Livro> livrosMaisBaixados = livroRepository.findTop10ByOrderByNumeroDownloadsDesc(topTen);
+
+                        if (livrosMaisBaixados.isEmpty()) {
+                                System.out.println("Nenhum livro encontrado.");
+                        } else {
+                                int posicao = 1; // Inicia a contagem da posição
+                                for (Livro livro : livrosMaisBaixados) {
+                                        System.out.println("\nPosição " + posicao + "\n" + livro + "\n-----------");
+                                        posicao++; // Incrementa a posição para o próximo livro
+                                }
+                        }
+                } catch (Exception e) {
+                        System.out.println("Ocorreu um erro durante a busca: " + e.getMessage());
+                }
+                menu();
         }
 
         private void buscaPorIdioma() {
                 try {
                         System.out.println("Digite o idioma do livro (por exemplo, 'pt' para Português): ");
-                        leitor.nextLine(); // Limpa o buffer do scanner
-                        String idiomaDigitado = leitor.nextLine().toUpperCase(); // Converte a entrada para maiúsculas
-                        Optional<Idioma> idioma = Idioma.porCodigo(idiomaDigitado); // Usa porCodigo para encontrar o idioma
+                        leitor.nextLine();
+                        String idiomaDigitado = leitor.nextLine().toUpperCase();
+                        Optional<Idioma> idioma = Idioma.porCodigo(idiomaDigitado);
 
                         if (idioma.isPresent()) {
                                 List<Livro> livrosEncontrados = livroRepository.findByidiomas(idioma.get());
@@ -99,9 +122,11 @@ public class Principal {
 
         private void buscaEntreAnos() {
                 try {
-                        System.out.println("Use-os para encontrar livros de autores vivos entre dois anos. \n"
-                                + "Por exemplo: Digitando '500 1000' a busca fornece livros com autores vivos entre 500 e 1000 d.C. \n" +
-                                "Digite o período desejado: ");
+                        System.out.println("""
+                                Use-os para encontrar livros de autores vivos entre dois anos. Por exemplo:
+                                Digitando '500 1000' a busca fornece livros com autores vivos entre 500 e 1000 D.C.
+                                Digite o período desejado:
+                                """);
                         System.out.println("Digite o ano inicial: ");
                         int anoBase = leitor.nextInt();
                         System.out.println("Digite o ano final: ");
@@ -117,9 +142,11 @@ public class Principal {
 
         private void buscaPorPeriodo() {
                 try {
-                        System.out.println("Use-os para encontrar livros com pelo menos um autor vivo em um determinado período. \n"
-                                + "Por exemplo: Digitando '-499' a busca fornece livros com autores vivos antes de 500 a.C. \n" +
-                                "Digite o período desejado: ");
+                        System.out.println("""
+                                Use-os para encontrar livros com pelo menos um autor vivo em um determinado período.Por exemplo:
+                                Digitando '-499' a busca fornece livros com autores vivos antes de 500 a.C.
+                                Digite o período desejado:
+                                """);
                         int anoBase = leitor.nextInt();
                         // Verifica se a URL já contém um '?', se não, adiciona
                         String url = gutendexApi.contains("?") ? gutendexApi + "&author_year_end=" + anoBase
@@ -157,8 +184,8 @@ public class Principal {
                         List<Livro> livros = api.listaDeLivros().stream()
                                 .map(detalhe -> converteLivroService.converterParaLivro(detalhe))
                                 .peek(livro -> {
-                                        System.out.println(livro); // Imprime os detalhes do livro
-                                        salvarDB(livro, livro.getAutor()); // Salva o livro no banco de dados
+                                        System.out.println(livro);
+                                        salvarDB(livro, livro.getAutor());
                                 })
                                 .collect(Collectors.toList());
                         return livros;
@@ -173,9 +200,9 @@ public class Principal {
                 System.out.println("\nPressione qualquer tecla para voltar ao menu ou 0 para sair.");
                 String entrada = leitor.nextLine();
                 if ("0".equals(entrada.trim())) {
-                        System.exit(0); // Encerra o programa
+                        System.exit(0);
                 } else {
-                        menu(); // Exibe o menu novamente
+                        menu();
                 }
         }
 }
