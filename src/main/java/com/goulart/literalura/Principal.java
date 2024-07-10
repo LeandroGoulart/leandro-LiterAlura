@@ -6,13 +6,13 @@ import com.goulart.literalura.dto.ResultadoApi;
 import com.goulart.literalura.model.Autor;
 import com.goulart.literalura.model.Idioma;
 import com.goulart.literalura.model.Livro;
+import com.goulart.literalura.repository.AutorRepository;
+import com.goulart.literalura.repository.LivroRepository;
 import com.goulart.literalura.service.ConsumoApi;
 import com.goulart.literalura.service.ConverteDados;
+import com.goulart.literalura.service.ConverteLivro;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Principal {
@@ -23,8 +23,18 @@ public class Principal {
         private static final ConverteDados conversor = new ConverteDados();
         private static final String buscaPeloId = "?ids=";
         private static final String buscaPorNome = "?search=";
+        private LivroRepository livroRepository;
+        private AutorRepository autorRepository;
+        private ConverteLivro converteLivroService;
 
-        public static void menu() {
+        public Principal(AutorRepository autorRepository, LivroRepository livroRepository, ConverteLivro converteLivroService) {
+                this.autorRepository = autorRepository;
+                this.livroRepository = livroRepository;
+                this.converteLivroService = converteLivroService;
+        }
+
+
+        public void menu() {
 
                 // Inicialize o Scanner no método menu
                 leitor = new Scanner(System.in);
@@ -52,12 +62,42 @@ public class Principal {
                                 case 2 -> buscaPorNome();
                                 case 3 -> buscaPorPeriodo();
                                 case 4 -> buscaEntreAnos();
+                                case 5 -> buscaPorIdioma();
                         }
                 } while (opcao != 0);
         }
 
+        private void buscaPorIdioma() {
+                try {
+                        System.out.println("Digite o idioma do livro (por exemplo, 'pt' para Português): ");
+                        leitor.nextLine(); // Limpa o buffer do scanner
+                        String idiomaDigitado = leitor.nextLine().toUpperCase(); // Converte a entrada para maiúsculas
+                        Optional<Idioma> idioma = Idioma.porCodigo(idiomaDigitado); // Usa porCodigo para encontrar o idioma
 
-        private static void buscaEntreAnos() {
+                        if (idioma.isPresent()) {
+                                List<Livro> livrosEncontrados = livroRepository.findByidiomas(idioma.get());
+                                if (livrosEncontrados.isEmpty()) {
+                                        System.out.println("Nenhum livro encontrado para o idioma: " + idioma.get().getNomeAmigavel());
+                                } else {
+                                        livrosEncontrados.forEach(livro -> System.out.println(livro));
+                                }
+                        } else {
+                                System.out.println("Idioma inválido. Por favor, tente novamente.");
+                        }
+                } catch (Exception e) {
+                        System.out.println("Ocorreu um erro durante a busca: " + e.getMessage());
+                }
+                menu();
+        }
+
+        public void salvarDB(Livro livro, Autor autor) {
+                livroRepository.save(livro);
+                if (autor != null) { // Verifica se o autor não é nulo antes de salvar
+                        autorRepository.save(autor);
+                }
+        }
+
+        private void buscaEntreAnos() {
                 try {
                         System.out.println("Use-os para encontrar livros de autores vivos entre dois anos. \n"
                                 + "Por exemplo: Digitando '500 1000' a busca fornece livros com autores vivos entre 500 e 1000 d.C. \n" +
@@ -75,7 +115,7 @@ public class Principal {
                 menu();
         }
 
-        private static void buscaPorPeriodo() {
+        private void buscaPorPeriodo() {
                 try {
                         System.out.println("Use-os para encontrar livros com pelo menos um autor vivo em um determinado período. \n"
                                 + "Por exemplo: Digitando '-499' a busca fornece livros com autores vivos antes de 500 a.C. \n" +
@@ -91,7 +131,7 @@ public class Principal {
                 menu();
         }
 
-        private static void buscaPorNome() {
+        private void buscaPorNome() {
                 System.out.println("Digite o nome do livro ou autor: ");
                 leitor.nextLine();
                 String nomeDigitadoParaBusca = leitor.nextLine(); // Usa nextLine() para capturar toda a linha, incluindo espaços
@@ -101,7 +141,7 @@ public class Principal {
                 retornoSaida();
         }
 
-        private static void buscaDetalhesPorId() {
+        private void buscaDetalhesPorId() {
                 System.out.println("Digite o ID do livro: ");
                 int id = leitor.nextInt();
                 String url = gutendexApi + buscaPeloId + id;
@@ -109,45 +149,26 @@ public class Principal {
                 retornoSaida();
         }
 
-        private static List<Livro> exibeLivro(String url) {
+        private List<Livro> exibeLivro(String url) {
                 try {
                         var json = consumoApi.obterDados(url);
                         System.out.println("Resultado encontrado: ");
                         ResultadoApi api = conversor.obterDados(json, ResultadoApi.class);
-                        return api.listaDeLivros().stream()
-                                .map(Principal::converterParaLivro)
-                                .peek(System.out::println)
+                        List<Livro> livros = api.listaDeLivros().stream()
+                                .map(detalhe -> converteLivroService.converterParaLivro(detalhe))
+                                .peek(livro -> {
+                                        System.out.println(livro); // Imprime os detalhes do livro
+                                        salvarDB(livro, livro.getAutor()); // Salva o livro no banco de dados
+                                })
                                 .collect(Collectors.toList());
+                        return livros;
                 } catch (Exception e) {
                         System.out.println("Ocorreu um erro ao buscar por nome: " + e.getMessage());
                         return new ArrayList<>();
                 }
         }
 
-        private static Livro converterParaLivro(DetalhesLivro detalhe) {
-                DadosAutor primeiroDadosAutor = detalhe.getPrimeiroAutor();
-                Autor autor = null;
-                if (primeiroDadosAutor != null) {
-                        autor = new Autor();
-                        autor.setNome(primeiroDadosAutor.nome());
-                        autor.setAnoNascimento(primeiroDadosAutor.anoNascimento());
-                        autor.setAnoMorte(primeiroDadosAutor.anoMorte());
-                }
-                // Converte a lista de códigos de idiomas (String) para uma lista de Idioma
-                List<Idioma> idiomasConvertidos = detalhe.idiomas().stream()
-                        .flatMap(codigo -> Idioma.deStringSeparadaPorVirgulas(String.join(",", codigo)).stream())
-                        .collect(Collectors.toList());
-
-                return new Livro(
-                        detalhe.id(),
-                        detalhe.titulo(),
-                        autor,
-                        idiomasConvertidos,
-                        detalhe.numeroDownloads()
-                );
-        }
-
-        private static void retornoSaida() {
+        private void retornoSaida() {
                 leitor.nextLine();
                 System.out.println("\nPressione qualquer tecla para voltar ao menu ou 0 para sair.");
                 String entrada = leitor.nextLine();

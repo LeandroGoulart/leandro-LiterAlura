@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class Livro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonAlias("id")
+    @JsonAlias("livro_id")
     private Integer id;
 
     @Column(name = "titulo")
@@ -24,21 +25,19 @@ public class Livro {
     private String titulo;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "autor_id")
+    @JoinColumn(name = "autor")
     @JsonAlias("authors")
     private Autor autor;
 
-    @ElementCollection
-    @CollectionTable(name = "livro_idiomas", joinColumns = @JoinColumn(name = "livro_id"))
     @Column(name = "idioma")
-    @JsonAlias("languages")
-    private List<Idioma> idiomas;
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LivroIdioma> idiomas;
 
     @Column(name = "numero_downloads")
     @JsonAlias("download_count")
     private Integer numeroDownloads;
 
-    public Livro(Integer id, String titulo, Autor autor,  List<Idioma> idiomas, Integer numeroDownloads) {
+    public Livro(Integer id, String titulo, Autor autor, List<LivroIdioma> idiomas, Integer numeroDownloads) {
         this.id = id;
         this.titulo = titulo;
         this.autor = autor;
@@ -49,7 +48,7 @@ public class Livro {
     @Override
     public String toString() {
         String idiomasStr = idiomas.stream()
-                .map(Idioma::getNomeAmigavel)
+                .map(livroIdioma -> livroIdioma.getIdioma().getNomeAmigavel())
                 .collect(Collectors.joining(", "));
         return "\nId= " + id +
                 "\nTitulo= " + titulo +

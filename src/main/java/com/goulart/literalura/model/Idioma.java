@@ -1,10 +1,7 @@
 package com.goulart.literalura.model;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public enum Idioma {
     INGLES("en", "Inglês"),
@@ -29,23 +26,15 @@ public enum Idioma {
         return nomeAmigavel;
     }
 
-    public static List<Idioma> deStringSeparadaPorVirgulas(String idiomas) {
-        if (idiomas == null || idiomas.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(idiomas.split(","))
-                .map(String::trim)
-                .map(Idioma::porCodigo)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public static Optional<Idioma> porCodigo(String codigo) {
+        return Arrays.stream(Idioma.values())
+                .filter(idioma -> idioma.getCodigo().equalsIgnoreCase(codigo))
+                .findFirst();
     }
 
-    private static Idioma porCodigo(String codigo) {
-        for (Idioma idioma : Idioma.values()) {
-            if (idioma.getCodigo().equals(codigo)) {
-                return idioma;
-            }
-        }
-        return null;
+    public static Optional<Idioma> porNomeAmigavel(String nomeAmigavel) {
+        return Arrays.stream(Idioma.values())
+                .filter(idioma -> idioma.getNomeAmigavel().equalsIgnoreCase(nomeAmigavel))
+                .findFirst();
     }
 }
