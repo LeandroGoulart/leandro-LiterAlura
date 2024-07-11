@@ -54,7 +54,7 @@ public class Principal {
                 Digite uma opção válida:
                 """);
 
-                int opcao = -1;
+                int opcao = 0;
                 do {
                         opcao = leitor.nextInt();
                         switch (opcao) {
@@ -66,6 +66,7 @@ public class Principal {
                                 case 6 -> buscaRanking();                                
                         }
                 } while (opcao != 0);
+                retornoSaida();
         }
 
 
@@ -111,6 +112,7 @@ public class Principal {
                         System.out.println("Ocorreu um erro durante a busca: " + e.getMessage());
                 }
                 menu();
+                retornoSaida();
         }
 
         public void salvarDB(Livro livro, Autor autor) {
@@ -138,6 +140,7 @@ public class Principal {
                         leitor.next();
                 }
                 menu();
+                retornoSaida();
         }
 
         private void buscaPorPeriodo() {
@@ -156,6 +159,7 @@ public class Principal {
                         System.out.println("Por favor, insira um número inteiro válido.");
                 }
                 menu();
+                retornoSaida();
         }
 
         private void buscaPorNome() {
