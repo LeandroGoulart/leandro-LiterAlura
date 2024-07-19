@@ -4,6 +4,9 @@
 
 Bem-vindo ao LiterAlura! Este é um projeto desenvolvido como conclusão de etapa do curso da Escola Alura em parceria com o projeto One Oracle + Alura. LiterAlura é uma aplicação web que permite aos usuários navegar e filtrar uma coleção de livros, com uma interface amigável e interativa.
 
+
+![Capa](./src/main/resources/images/capa.png)
+
 ## Funcionalidades
 
 - Exibição de uma lista de livros.
@@ -15,9 +18,13 @@ Bem-vindo ao LiterAlura! Este é um projeto desenvolvido como conclusão de etap
 ## Tecnologias Utilizadas
 
 
-- **Backend:** Implementado com Java, Spring Boot, e Postgres.
-- **API** disponibilizada pelo site https://gutendex.com/
+- **Backend:**Implementado com **Java** e **Spring Boot MVC**, utilizando **Postgres** como sistema de gerenciamento de banco de dados. 
+- **API rest:** Disponibilizada pelo site https://gutendex.com/
+- **Entity:** Utilizamos o conceito de Entidades no contexto do JPA (Java Persistence API) para mapear nossas classes Java às tabelas do banco de dados.
+- **Java:** Java é uma linguagem de programação robusta e orientada a objetos, escolhida pela sua portabilidade e eficiência. 
+- **JPA (Java Persistence API):** Framework utilizado para gerenciar o relacionamento entre objetos Java e o banco de dados em uma aplicação Java EE. O JPA facilita o desenvolvimento de aplicações que necessitam de acesso a banco de dados, abstraindo a complexidade das operações CRUD (Create, Read, Update, Delete).
 
+- **Apache:** Para mapeamento de endpoints.
 Obs.: Para consultas na API foi utilizado o Apache postman.
 
 ## Aprendizados
@@ -55,7 +62,17 @@ Este projeto foi um dos mais difíceis e trabalhoso no qual já trabalhei. Enfre
     mvn spring-boot:run
     ```
 5. **Interaja com a aplicação através de comandos no terminal.**
+   
+   MENU:
 
+
+![MENU](./src/main/resources/images/menu.png)
+
+A opçao 1 te dá detalhes específicos de um livro. Caso não saiba o ID, procurar pela opção 2.
+
+Função 2, 3 e 4 busca direto no site, através da api.
+
+Função 5 e 6 faz a busca direto no banco de dados.
 
 ## Conclusão
 
